@@ -9,7 +9,6 @@ import 'package:geolocation_poc/util/util.dart';
 import 'package:geolocation_poc/ui/common_widgets/texts.dart';
 import 'package:location/location.dart';
 
-
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -64,7 +63,8 @@ class _MainScreenState extends State<MainScreen> {
     _placeMarkerIcon = await _createCircleMarker(40, Colors.red);
   }
 
-  Future<BitmapDescriptor> _createCircleMarker(int diameter, Color color) async {
+  Future<BitmapDescriptor> _createCircleMarker(
+      int diameter, Color color) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     final paint = Paint()
@@ -85,18 +85,18 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: _permissionGranted
           ? GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 15,
-        ),
-        onMapCreated: (controller) {
-          _mapController = controller;
-          _startLocationUpdates();
-        },
-        myLocationEnabled: false,
-        myLocationButtonEnabled: false,
-        markers: _buildMarkers(),
-      )
+              initialCameraPosition: CameraPosition(
+                target: _currentPosition,
+                zoom: 15,
+              ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+                _startLocationUpdates();
+              },
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              markers: _buildMarkers(),
+            )
           : _buildPermissionDeniedWidget(),
     );
   }
@@ -152,8 +152,8 @@ class _MainScreenState extends State<MainScreen> {
 
   void _startLocationUpdates() {
     location.onLocationChanged.listen((LocationData currentLocation) {
-      _currentPosition = LatLng(
-          currentLocation.latitude ?? 0, currentLocation.longitude ?? 0);
+      _currentPosition =
+          LatLng(currentLocation.latitude ?? 0, currentLocation.longitude ?? 0);
       _moveCameraToPosition(_currentPosition);
       _checkProximityToPlaces();
       setState(() {});
@@ -199,12 +199,12 @@ class _MainScreenState extends State<MainScreen> {
 
   void _checkProximityToPlaces() {
     for (var place in _places) {
-      if (_calculateDistance(_currentPosition, place.location) < 100 &&
+      if (_calculateDistance(_currentPosition, place.location) < 10 &&
           !_modalShown) {
         _showPlaceDetails(place);
         _modalShown = true;
         break;
-      } else if (_calculateDistance(_currentPosition, place.location) >= 100) {
+      } else if (_calculateDistance(_currentPosition, place.location) >= 10) {
         _modalShown = false;
       }
     }
@@ -218,7 +218,7 @@ class _MainScreenState extends State<MainScreen> {
             cos(pos2.latitude * p) *
             (1 - cos((pos2.longitude - pos1.longitude) * p)) /
             2;
-    return 12742 * asin(sqrt(a)) * 1000; // Distance in meters
+    return 12742 * asin(sqrt(a)) * 1000;
   }
 
   void _showPlaceDetails(Place place) {
