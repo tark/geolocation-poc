@@ -57,6 +57,7 @@ Future<T?> showBottomModal<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   Color? background,
+  Color? barrierColor, // Use this parameter
 }) async {
   final result = await showModalBottomSheet<T>(
     isScrollControlled: true,
@@ -66,7 +67,7 @@ Future<T?> showBottomModal<T>({
         top: Radius.circular(16),
       ),
     ),
-    barrierColor: context.dialogBarrier,
+    barrierColor: barrierColor, // Use the barrierColor passed to this function
     builder: (c) {
       return ClipRRect(
         borderRadius: const BorderRadius.vertical(
@@ -105,6 +106,7 @@ Future<T?> showBottomModal<T>({
   );
   return result;
 }
+
 
 Future<T?> showTopModal<T>({
   required BuildContext context,
