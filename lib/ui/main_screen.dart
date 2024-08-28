@@ -65,8 +65,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _loadCustomMarkers() async {
-    _userMarkerIcon = await _createCircleMarker(70, Colors.blue);
-    _placeMarkerIcon = await _createCircleMarker(70, Colors.red);
+    _userMarkerIcon = await _createCircleMarker(50, Colors.blue);
+    _placeMarkerIcon = await _createCircleMarker(50, Colors.red);
   }
 
   Future<BitmapDescriptor> _createCircleMarker(int size, Color color) async {
@@ -101,29 +101,31 @@ class _MainScreenState extends State<MainScreen> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Texts('Flutter GPS', fontSize: AppSize.fontBig),
+        title: const Texts(
+          'Flutter GPS',
+          fontSize: AppSize.fontBig,
+          fontWeight: FontWeight.w500,
+        ),
         backgroundColor: Colors.black.withOpacity(0.8),
         elevation: 0,
       ),
       body: _permissionGranted
           ? GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 15,
-        ),
-        onMapCreated: (controller) {
-          _mapController = controller;
-          _startLocationUpdates();
-        },
-        myLocationEnabled: false,
-        myLocationButtonEnabled: false,
-        markers: _buildMarkers(),
-      )
+              initialCameraPosition: CameraPosition(
+                target: _currentPosition,
+                zoom: 15,
+              ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+                _startLocationUpdates();
+              },
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              markers: _buildMarkers(),
+            )
           : _buildPermissionDeniedWidget(),
     );
   }
-
-
 
   Widget _buildPermissionDeniedWidget() {
     return Center(
