@@ -52,6 +52,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.dark,
         theme: lightTheme,
         darkTheme: darkTheme,
         home: MainScreen(),
