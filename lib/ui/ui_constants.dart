@@ -25,7 +25,7 @@ class AppImages {
   static const wristbandNewErrorIcon = '$icons/wristband_new_error.svg';
   static const searchIcon = '$icons/search.svg';
   static const calendarIcon = '$icons/calendar_small.svg';
-  static const locationIcon = '$icons/location_small.svg';
+  static const locationIcon = '$icons/location.svg';
   static const filterIcon = '$icons/filter.svg';
   static const checkIcon = '$icons/check.svg';
   static const checkBigIcon = '$icons/check_big.svg';
@@ -129,7 +129,6 @@ class AppColorsDarkTheme {
   static const checkInExternalBackground = Color(0xFF1B1B22);
   static const checkInExternalCardBackground = cardBackground;
   static const checkInExternalInfoTitle = textSecondary;
-
 }
 
 class AppSize {
