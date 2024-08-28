@@ -105,7 +105,7 @@ class AppColors {
   static const cardBackground = Color(0xccF2F4F5);
   static const gradientBlue = Color(0xff4B50C7);
   static const gradientYellow = Color(0xffC19A4D);
-  static const dialogBarrier = Color(0xD92C2E3E);
+  static const dialogBarrier = Color(0xFF000000);
   static const dialogBarrierStatusBar = Color(0x332C2E3E);
   static const buttonText = Color(0xFFF8F8F8);
   static const buttonSecondary = Color(0xFFE0E1EB);
