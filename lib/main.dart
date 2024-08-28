@@ -13,15 +13,15 @@ import 'ui/theme/dark_theme.dart';
 import 'ui/theme/light_theme.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.blue, // Set the desired color here
-    systemNavigationBarIconBrightness: Brightness.light, // Adjust the icon color for contrast
-    statusBarColor: Colors.blue,
-    systemNavigationBarDividerColor: Colors.transparent,
+
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.light,
+    statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
   ));
+
   await dotenv.load(fileName: ".env");
 
   final api = Api();
@@ -30,9 +30,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  runApp(MyApp(
-    api: api,
-  ));
+  runApp(MyApp(api: api));
 }
 
 class MyApp extends StatelessWidget {
@@ -48,8 +46,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MainCubit>(
-          create: (c) => MainCubit(
-          ),
+          create: (c) => MainCubit(),
           lazy: false,
         ),
       ],
@@ -58,6 +55,7 @@ class MyApp extends StatelessWidget {
         theme: lightTheme,
         darkTheme: darkTheme,
         home: MainScreen(),
+        title: 'Flutter GPS',
       ),
     );
   }
