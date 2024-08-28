@@ -3,11 +3,12 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocation_poc/ui/ui_constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocation_poc/util/util.dart';
-import 'package:geolocation_poc/ui/common_widgets/texts.dart';
 import 'package:location/location.dart';
+
+import 'common_widgets/texts.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -25,24 +26,29 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Place> _places = [
     Place(
-      location: LatLng(-33.90508758118587, 151.18199288959056),
+      location: const LatLng(-33.90508758118587, 151.18199288959056),
       name: "25 Devine St",
       imageUrl: "assets/images/25.jpeg",
     ),
     Place(
-      location: LatLng(-33.90496069147935, 151.18175149080162),
+      location: const LatLng(-33.90496069147935, 151.18175149080162),
       name: "17 Devine St",
       imageUrl: "assets/images/17.jpeg",
     ),
     Place(
-      location: LatLng(-33.904907264178014, 151.18157982944055),
+      location: const LatLng(-33.904907264178014, 151.18157982944055),
       name: "9 Devine St",
-      imageUrl: "assets/images/25.jpeg",
+      imageUrl: "assets/images/9.jpeg",
     ),
     Place(
-      location: LatLng(-33.9048271231632, 151.1814269435409),
+      location: const LatLng(-33.9048271231632, 151.1814269435409),
       name: "1 Devine St",
-      imageUrl: "assets/images/25.jpeg",
+      imageUrl: "assets/images/1.jpeg",
+    ),
+    Place(
+      location: const LatLng(37.4217007857818, -122.08408330273932),
+      name: "Google B43",
+      imageUrl: "assets/images/1.jpeg",
     ),
   ];
 
@@ -59,14 +65,11 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _loadCustomMarkers() async {
-    _userMarkerIcon = await _createCircleMarker(40, Colors.blue);
-    _placeMarkerIcon = await _createCircleMarker(40, Colors.red);
+    _userMarkerIcon = await _createCircleMarker(70, Colors.blue);
+    _placeMarkerIcon = await _createCircleMarker(70, Colors.red);
   }
 
-  Future<BitmapDescriptor> _createCircleMarker(
-    int size,
-    Color color,
-  ) async {
+  Future<BitmapDescriptor> _createCircleMarker(int size, Color color) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
@@ -95,26 +98,32 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Geolocation POC'),
+        title: const Texts('Flutter GPS', fontSize: AppSize.fontBig),
+        backgroundColor: Colors.black.withOpacity(0.8),
+        elevation: 0,
       ),
       body: _permissionGranted
           ? GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _currentPosition,
-                zoom: 15,
-              ),
-              onMapCreated: (controller) {
-                _mapController = controller;
-                _startLocationUpdates();
-              },
-              myLocationEnabled: false,
-              myLocationButtonEnabled: false,
-              markers: _buildMarkers(),
-            )
+        initialCameraPosition: CameraPosition(
+          target: _currentPosition,
+          zoom: 15,
+        ),
+        onMapCreated: (controller) {
+          _mapController = controller;
+          _startLocationUpdates();
+        },
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        markers: _buildMarkers(),
+      )
           : _buildPermissionDeniedWidget(),
     );
   }
+
+
 
   Widget _buildPermissionDeniedWidget() {
     return Center(
@@ -122,7 +131,7 @@ class _MainScreenState extends State<MainScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(),
-          Vertical.big(),
+          const Vertical.huge(),
           const Texts('Waiting for location permission...'),
           ElevatedButton(
             onPressed: requestLocationPermission,
@@ -187,7 +196,7 @@ class _MainScreenState extends State<MainScreen> {
     if (_userMarkerIcon != null) {
       markers.add(
         Marker(
-          markerId: MarkerId('user'),
+          markerId: const MarkerId('user'),
           position: _currentPosition,
           icon: _userMarkerIcon!,
         ),
@@ -219,8 +228,6 @@ class _MainScreenState extends State<MainScreen> {
         _showPlaceDetails(place);
         _modalShown = true;
         break;
-      } else if (_calculateDistance(_currentPosition, place.location) >= 10) {
-        _modalShown = false;
       }
     }
   }
@@ -237,24 +244,39 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _showPlaceDetails(Place place) {
-    showBottomModal(
+    if (_modalShown) return;
+
+    _modalShown = true;
+    showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.black.withOpacity(0.7),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (context) {
         return Padding(
           padding: AppPadding.allNormal,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(place.imageUrl),
-              Vertical.medium(),
               Texts(
                 place.name,
+                fontSize: AppSize.fontNormalBig,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              const Vertical.medium(),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(place.imageUrl),
               ),
             ],
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      _modalShown = false;
+    });
   }
 }
 
