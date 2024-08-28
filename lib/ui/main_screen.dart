@@ -5,6 +5,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocation_poc/ui/ui_constants.dart';
+import 'package:geolocation_poc/util/context_extensions.dart';
+import 'package:geolocation_poc/util/util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -106,23 +108,23 @@ class _MainScreenState extends State<MainScreen> {
           fontSize: AppSize.fontBig,
           fontWeight: FontWeight.w500,
         ),
-        backgroundColor: Colors.black.withOpacity(0.8),
+        backgroundColor: context.background.withOpacity(0.8),
         elevation: 0,
       ),
       body: _permissionGranted
           ? GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _currentPosition,
-                zoom: 15,
-              ),
-              onMapCreated: (controller) {
-                _mapController = controller;
-                _startLocationUpdates();
-              },
-              myLocationEnabled: false,
-              myLocationButtonEnabled: false,
-              markers: _buildMarkers(),
-            )
+        initialCameraPosition: CameraPosition(
+          target: _currentPosition,
+          zoom: 15,
+        ),
+        onMapCreated: (controller) {
+          _mapController = controller;
+          _startLocationUpdates();
+        },
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        markers: _buildMarkers(),
+      )
           : _buildPermissionDeniedWidget(),
     );
   }
@@ -247,14 +249,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void _showPlaceDetails(Place place) {
     if (_modalShown) return;
-
     _modalShown = true;
-    showModalBottomSheet(
+
+    showBottomModal(
       context: context,
-      backgroundColor: Colors.black.withOpacity(0.7),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (context) {
         return Padding(
           padding: AppPadding.allNormal,
@@ -276,6 +274,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       },
+      barrierColor: context.dialogBarrier.withOpacity(0.3),
     ).whenComplete(() {
       _modalShown = false;
     });
