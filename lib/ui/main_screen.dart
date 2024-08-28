@@ -64,15 +64,30 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<BitmapDescriptor> _createCircleMarker(
-      int diameter, Color color) async {
+    int size,
+    Color color,
+  ) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+
+    final offsetX = size / 2;
+    final offsetY = size / 2;
+    final radius = size / 2;
+    final radiusSmall = radius * 0.7;
+
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(diameter / 2, diameter / 2), diameter / 2, paint);
+
+    final whitePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(offsetX, offsetY), radius, whitePaint);
+    canvas.drawCircle(Offset(offsetX, offsetY), radiusSmall, paint);
+
     final picture = recorder.endRecording();
-    final image = await picture.toImage(diameter, diameter);
+    final image = await picture.toImage(size, size);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
