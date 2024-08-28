@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/daniilalekseev/development/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/daniilalekseev/Downloads/geolocation-poc-master 2"
+export "FLUTTER_ROOT=/Users/airon/Development/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/airon/Projects/Tark/geolocation_poc"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"
