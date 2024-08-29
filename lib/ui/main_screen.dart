@@ -67,11 +67,6 @@ class _MainScreenState extends State<MainScreen> {
     requestLocationPermission();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future<void> _loadCustomMarkers() async {
     _userMarkerIcon = await _createCircleMarker(Colors.blue);
     _placeMarkerIcon = await _createCircleMarker(Colors.red);
@@ -103,9 +98,20 @@ class _MainScreenState extends State<MainScreen> {
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(
-        const Offset(offsetX, offsetY + shadowOffset), radius, shadowPaint);
-    canvas.drawCircle(const Offset(offsetX, offsetY), radius, whitePaint);
-    canvas.drawCircle(const Offset(offsetX, offsetY), radiusSmall, paint);
+      const Offset(offsetX, offsetY + shadowOffset),
+      radius,
+      shadowPaint,
+    );
+    canvas.drawCircle(
+      const Offset(offsetX, offsetY),
+      radius,
+      whitePaint,
+    );
+    canvas.drawCircle(
+      const Offset(offsetX, offsetY),
+      radiusSmall,
+      paint,
+    );
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(size, size);
@@ -120,18 +126,18 @@ class _MainScreenState extends State<MainScreen> {
       extendBodyBehindAppBar: true,
       body: _permissionGranted
           ? GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _currentPosition,
-                zoom: 15,
-              ),
-              onMapCreated: (controller) {
-                _mapController = controller;
-                _startLocationUpdates();
-              },
-              myLocationEnabled: false,
-              myLocationButtonEnabled: false,
-              markers: _buildMarkers(),
-            )
+        initialCameraPosition: CameraPosition(
+          target: _currentPosition,
+          zoom: 15,
+        ),
+        onMapCreated: (controller) {
+          _mapController = controller;
+          _startLocationUpdates();
+        },
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        markers: _buildMarkers(),
+      )
           : _buildPermissionDeniedWidget(),
     );
   }
@@ -144,24 +150,19 @@ class _MainScreenState extends State<MainScreen> {
           Spinner(
             color: context.secondary,
           ),
-          const Vertical.huge(),
+          const SizedBox(height: 16),
           Texts(
             'Waiting for location permission...',
             fontSize: AppSize.fontNormal,
             fontWeight: FontWeight.w500,
             color: context.secondary,
           ),
-          const Vertical.big(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Buttons(
-                text: 'Retry',
-                onPressed: requestLocationPermission,
-                width: 200,
-                buttonColor: context.cardBackground,
-              ),
-            ],
+          const SizedBox(height: 16),
+          Buttons(
+            text: 'Retry',
+            onPressed: requestLocationPermission,
+            width: 200,
+            buttonColor: context.cardBackground,
           ),
         ],
       ),
@@ -169,23 +170,16 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> requestLocationPermission() async {
-    bool serviceEnabled;
-    PermissionStatus permissionStatus;
-
-    serviceEnabled = await location.serviceEnabled();
+    bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
+      if (!serviceEnabled) return;
     }
 
-    permissionStatus = await location.hasPermission();
+    PermissionStatus permissionStatus = await location.hasPermission();
     if (permissionStatus == PermissionStatus.denied) {
       permissionStatus = await location.requestPermission();
-      if (permissionStatus != PermissionStatus.granted) {
-        return;
-      }
+      if (permissionStatus != PermissionStatus.granted) return;
     }
 
     if (permissionStatus == PermissionStatus.granted) {
@@ -202,11 +196,14 @@ class _MainScreenState extends State<MainScreen> {
 
   void _startLocationUpdates() {
     location.onLocationChanged.listen((LocationData currentLocation) {
-      _currentPosition =
-          LatLng(currentLocation.latitude ?? 0, currentLocation.longitude ?? 0);
+      setState(() {
+        _currentPosition = LatLng(
+          currentLocation.latitude ?? 0,
+          currentLocation.longitude ?? 0,
+        );
+      });
       _moveCameraToPosition(_currentPosition);
       _checkProximityToPlaces();
-      setState(() {});
     });
   }
 
@@ -224,7 +221,7 @@ class _MainScreenState extends State<MainScreen> {
         Marker(
           markerId: const MarkerId('user'),
           position: _currentPosition,
-          icon: _userMarkerIcon!,
+          icon: _userMarkerIcon ?? BitmapDescriptor.defaultMarker,
         ),
       );
     }
@@ -235,7 +232,7 @@ class _MainScreenState extends State<MainScreen> {
           Marker(
             markerId: MarkerId(place.location.toString()),
             position: place.location,
-            icon: _placeMarkerIcon!,
+            icon: _placeMarkerIcon ?? BitmapDescriptor.defaultMarker,
             onTap: () {
               _showPlaceDetails(place);
             },
@@ -249,10 +246,9 @@ class _MainScreenState extends State<MainScreen> {
 
   void _checkProximityToPlaces() {
     for (var place in _places) {
-      if (_calculateDistance(_currentPosition, place.location) < 10 &&
+      if (_calculateDistance(_currentPosition, place.location) < 100 &&
           !_modalShown) {
         _showPlaceDetails(place);
-        _modalShown = true;
         break;
       }
     }
@@ -269,38 +265,42 @@ class _MainScreenState extends State<MainScreen> {
     return 12742 * asin(sqrt(a)) * 1000;
   }
 
-  void _showPlaceDetails(Place place) {
+  Future<void> _showPlaceDetails(Place place) async {
     if (_modalShown) return;
     _modalShown = true;
 
-    showBottomModal(
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: AppPadding.allNormal,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Vertical.small(),
-              Texts(
-                place.name,
-                fontSize: AppSize.fontNormalBig,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-              const Vertical.big(),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(place.imageUrl),
-              ),
-            ],
-          ),
-        );
-      },
-      barrierColor: context.dialogBarrier.withOpacity(0.3),
-    ).whenComplete(() {
-      _modalShown = false;
-    });
+    try {
+      await showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: AppPadding.allNormal,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 8),
+                Texts(
+                  place.name,
+                  fontSize: AppSize.fontNormalBig,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(place.imageUrl),
+                ),
+              ],
+            ),
+          );
+        },
+        barrierColor: context.dialogBarrier.withOpacity(0.3),
+      );
+    } finally {
+      setState(() {
+        _modalShown = false;
+      });
+    }
   }
 }
 
