@@ -246,7 +246,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _checkProximityToPlaces() {
     for (var place in _places) {
-      if (_calculateDistance(_currentPosition, place.location) < 100 &&
+      if (_calculateDistance(_currentPosition, place.location) < 10 &&
           !_modalShown) {
         _showPlaceDetails(place);
         break;
