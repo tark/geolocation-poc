@@ -43,7 +43,7 @@ class Api {
       l('_get', 'error - type:     ${e.error.runtimeType}');
       l('_get', 'error - type dio: ${e.type}');
       l('_get', '---------------------------------');
-      throw e.message;
+      throw e.message ?? 'Unknown error';
     }
   }
 
@@ -84,7 +84,7 @@ class Api {
       l('_post', 'data:             ${e.response?.data.toString()}');
       l('_post', 'message:          ${e.message}');
       if (e.response?.data is String) {
-        throw e.message;
+        throw e.message ?? 'Unknown error';
       } else {
         throw e.response?.data['errorMsg'] ?? e.message;
       }
@@ -106,7 +106,7 @@ class Api {
     } on DioError catch (e) {
 
       l('_delete', 'dio error - ${e.message}');
-      throw e.message;
+      throw e.message ?? 'Unknown error';
     }
   }
 
@@ -127,7 +127,7 @@ return {};
       return response.data ?? {};
     } on DioError catch (e) {
       l('_put', 'dio error - ${e.message}');
-      throw e.message;
+      throw e.message ?? 'Unknown error';
     }
   }
 
@@ -144,7 +144,7 @@ return {};
       return response?.data;
     } on DioError catch (e) {
       l('_patch', 'dio error - ${e.message}');
-      throw e.message;
+      throw e.message ?? 'Unknown error';
     }
   }
 }
