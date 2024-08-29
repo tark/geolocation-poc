@@ -2,17 +2,22 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocation_poc/ui/common_widgets/spinner.dart';
 import 'package:geolocation_poc/ui/ui_constants.dart';
 import 'package:geolocation_poc/util/context_extensions.dart';
 import 'package:geolocation_poc/util/util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
+import 'common_widgets/buttons.dart';
 import 'common_widgets/texts.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -47,11 +52,12 @@ class _MainScreenState extends State<MainScreen> {
       name: "1 Devine St",
       imageUrl: "assets/images/1.jpeg",
     ),
-    Place(
-      location: const LatLng(37.4217007857818, -122.08408330273932),
-      name: "Google B43",
-      imageUrl: "assets/images/1.jpeg",
-    ),
+    if (kDebugMode)
+      Place(
+        location: const LatLng(37.4217007857818, -122.08408330273932),
+        name: "Google B43",
+        imageUrl: "assets/images/1.jpeg",
+      ),
   ];
 
   @override
@@ -67,18 +73,26 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _loadCustomMarkers() async {
-    _userMarkerIcon = await _createCircleMarker(50, Colors.blue);
-    _placeMarkerIcon = await _createCircleMarker(50, Colors.red);
+    _userMarkerIcon = await _createCircleMarker(Colors.blue);
+    _placeMarkerIcon = await _createCircleMarker(Colors.red);
   }
 
-  Future<BitmapDescriptor> _createCircleMarker(int size, Color color) async {
+  Future<BitmapDescriptor> _createCircleMarker(Color color) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final offsetX = size / 2;
-    final offsetY = size / 2;
-    final radius = size / 2;
-    final radiusSmall = radius * 0.7;
+    const size = 70;
+    const shadowOffset = 2.0;
+    const shadowSigma = 3.0;
+
+    const offsetX = size / 2;
+    const offsetY = size / 2;
+    const radius = size / 3;
+    const radiusSmall = radius * 0.65;
+
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, shadowSigma);
 
     final paint = Paint()
       ..color = color
@@ -88,8 +102,10 @@ class _MainScreenState extends State<MainScreen> {
       ..color = Colors.white
       ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(Offset(offsetX, offsetY), radius, whitePaint);
-    canvas.drawCircle(Offset(offsetX, offsetY), radiusSmall, paint);
+    canvas.drawCircle(
+        const Offset(offsetX, offsetY + shadowOffset), radius, shadowPaint);
+    canvas.drawCircle(const Offset(offsetX, offsetY), radius, whitePaint);
+    canvas.drawCircle(const Offset(offsetX, offsetY), radiusSmall, paint);
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(size, size);
@@ -102,29 +118,20 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Texts(
-          'Flutter GPS',
-          fontSize: AppSize.fontBig,
-          fontWeight: FontWeight.w500,
-        ),
-        backgroundColor: context.background.withOpacity(0.8),
-        elevation: 0,
-      ),
       body: _permissionGranted
           ? GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 15,
-        ),
-        onMapCreated: (controller) {
-          _mapController = controller;
-          _startLocationUpdates();
-        },
-        myLocationEnabled: false,
-        myLocationButtonEnabled: false,
-        markers: _buildMarkers(),
-      )
+              initialCameraPosition: CameraPosition(
+                target: _currentPosition,
+                zoom: 15,
+              ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+                _startLocationUpdates();
+              },
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              markers: _buildMarkers(),
+            )
           : _buildPermissionDeniedWidget(),
     );
   }
@@ -134,12 +141,27 @@ class _MainScreenState extends State<MainScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(),
+          Spinner(
+            color: context.secondary,
+          ),
           const Vertical.huge(),
-          const Texts('Waiting for location permission...'),
-          ElevatedButton(
-            onPressed: requestLocationPermission,
-            child: const Texts('Retry'),
+          Texts(
+            'Waiting for location permission...',
+            fontSize: AppSize.fontNormal,
+            fontWeight: FontWeight.w500,
+            color: context.secondary,
+          ),
+          const Vertical.big(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Buttons(
+                text: 'Retry',
+                onPressed: requestLocationPermission,
+                width: 200,
+                buttonColor: context.cardBackground,
+              ),
+            ],
           ),
         ],
       ),
@@ -259,13 +281,14 @@ class _MainScreenState extends State<MainScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const Vertical.small(),
               Texts(
                 place.name,
                 fontSize: AppSize.fontNormalBig,
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
               ),
-              const Vertical.medium(),
+              const Vertical.big(),
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(place.imageUrl),
