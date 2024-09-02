@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:geolocation_poc/ui/common_widgets/spinner.dart';
 import 'package:geolocation_poc/ui/ui_constants.dart';
 import 'package:geolocation_poc/util/context_extensions.dart';
@@ -31,34 +32,59 @@ class _MainScreenState extends State<MainScreen> {
   bool _permissionGranted = false;
   bool _modalShown = false;
 
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   final List<Place> _places = [
     Place(
-      location: const LatLng(-33.90508758118587, 151.18199288959056),
-      name: "25 Devine St",
+      location: const LatLng(-33.90509336406157, 151.18219312610736),
+      name: "31 Devine St",
       imageUrl: "assets/images/25.jpeg",
+      audioUrl: "audio/31_devine_st.mp3",
     ),
     Place(
-      location: const LatLng(-33.90496069147935, 151.18175149080162),
-      name: "17 Devine St",
-      imageUrl: "assets/images/17.jpeg",
-    ),
-    Place(
-      location: const LatLng(-33.904907264178014, 151.18157982944055),
-      name: "9 Devine St",
-      imageUrl: "assets/images/9.jpeg",
-    ),
-    Place(
-      location: const LatLng(-33.9048271231632, 151.1814269435409),
+      location: const LatLng(-33.904746587684, 151.18150796894392),
       name: "1 Devine St",
+      imageUrl: "assets/images/17.jpeg",
+      audioUrl: "audio/1_devine_st.mp3",
+    ),
+    Place(
+      location: const LatLng(-33.9041761813776, 151.18143913580823),
+      name: "193 Rochford St",
+      imageUrl: "assets/images/9.jpeg",
+      audioUrl: "audio/193_rochford_st.mp3",
+    ),
+    Place(
+      location: const LatLng(-33.90357104858936, 151.18190882587766),
+      name: "171 Rochford St",
       imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/171_rochford_st.mp3",
+    ),
+    Place(
+      location: const LatLng(-33.9026941888735, 151.18230337853444),
+      name: "137 Rochford St",
+      imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/137_rochford_st.mp3",
+    ),
+    Place(
+      location: const LatLng(-33.90220666188612, 151.18294886218675),
+      name: "12 Victoria St",
+      imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/12_victoria_st.mp3",
     ),
     if (kDebugMode)
       Place(
         location: const LatLng(37.4217007857818, -122.08408330273932),
         name: "Google B43",
         imageUrl: "assets/images/1.jpeg",
+        audioUrl: "audio/12_victoria_st.mp3",
       ),
   ];
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -195,15 +221,17 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _startLocationUpdates() {
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      setState(() {
-        _currentPosition = LatLng(
-          currentLocation.latitude ?? 0,
-          currentLocation.longitude ?? 0,
-        );
+    Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      location.getLocation().then((LocationData currentLocation) {
+        setState(() {
+          _currentPosition = LatLng(
+            currentLocation.latitude ?? 0,
+            currentLocation.longitude ?? 0,
+          );
+        });
+        _moveCameraToPosition(_currentPosition);
+        _checkProximityToPlaces();
       });
-      _moveCameraToPosition(_currentPosition);
-      _checkProximityToPlaces();
     });
   }
 
@@ -246,7 +274,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _checkProximityToPlaces() {
     for (var place in _places) {
-      if (_calculateDistance(_currentPosition, place.location) < 10 &&
+      if (_calculateDistance(_currentPosition, place.location) < 15 &&
           !_modalShown) {
         _showPlaceDetails(place);
         break;
@@ -270,33 +298,40 @@ class _MainScreenState extends State<MainScreen> {
     _modalShown = true;
 
     try {
+      await _audioPlayer.play(AssetSource(place.audioUrl));
+
       await showModalBottomSheet(
         context: context,
         builder: (context) {
-          return Padding(
-            padding: AppPadding.allNormal,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                Texts(
-                  place.name,
-                  fontSize: AppSize.fontNormalBig,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
+          return FractionallySizedBox(
+            heightFactor: 0.4,
+            child: Container(
+              width: double.infinity,
+              padding: AppPadding.allNormal,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Texts(
+                      place.name,
+                      fontSize: AppSize.fontBig,
+                      fontWeight: FontWeight.w500,
+                      color: context.primary,
+                      isCenter: true,
+                      maxLines: 5,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(place.imageUrl),
-                ),
-              ],
+              ),
             ),
           );
         },
         barrierColor: context.dialogBarrier.withOpacity(0.3),
       );
     } finally {
+      _audioPlayer.stop();
       setState(() {
         _modalShown = false;
       });
@@ -308,10 +343,12 @@ class Place {
   final LatLng location;
   final String name;
   final String imageUrl;
+  final String audioUrl;
 
   Place({
     required this.location,
     required this.name,
     required this.imageUrl,
+    required this.audioUrl,
   });
 }
