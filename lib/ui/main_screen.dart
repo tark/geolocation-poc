@@ -312,7 +312,9 @@ class _MainScreenState extends State<MainScreen> {
     if (_modalShown) {
       return;
     }
-    _modalShown = true;
+    setState(() {
+      _modalShown = true;
+    });
 
     try {
       await _audioPlayer.play(AssetSource(place.audioUrl));
