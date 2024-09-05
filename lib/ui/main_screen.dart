@@ -25,14 +25,16 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   GoogleMapController? _mapController;
-  LatLng _currentPosition = const LatLng(0, 0);
-  Location location = Location();
+
   BitmapDescriptor? _userMarkerIcon;
   BitmapDescriptor? _placeMarkerIcon;
-  bool _permissionGranted = false;
-  bool _modalShown = false;
 
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final _audioPlayer = AudioPlayer();
+  final location = Location();
+
+  var _currentPosition = const LatLng(0, 0);
+  var _permissionGranted = false;
+  var _modalShown = false;
 
   final List<Place> _places = [
     Place(
@@ -81,16 +83,39 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
     _loadCustomMarkers();
     requestLocationPermission();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      body: _permissionGranted
+          ? GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: _currentPosition,
+          zoom: 15,
+        ),
+        onMapCreated: (c) {
+          _mapController = c;
+          _startLocationUpdates();
+        },
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        markers: _buildMarkers(),
+      )
+          : _buildPermissionDeniedWidget(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCustomMarkers() async {
@@ -124,17 +149,17 @@ class _MainScreenState extends State<MainScreen> {
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(
-      const Offset(offsetX, offsetY + shadowOffset),
+      Offset(offsetX, offsetY + shadowOffset),
       radius,
       shadowPaint,
     );
     canvas.drawCircle(
-      const Offset(offsetX, offsetY),
+      Offset(offsetX, offsetY),
       radius,
       whitePaint,
     );
     canvas.drawCircle(
-      const Offset(offsetX, offsetY),
+      Offset(offsetX, offsetY),
       radiusSmall,
       paint,
     );
@@ -142,30 +167,12 @@ class _MainScreenState extends State<MainScreen> {
     final picture = recorder.endRecording();
     final image = await picture.toImage(size, size);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      body: _permissionGranted
-          ? GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 15,
-        ),
-        onMapCreated: (controller) {
-          _mapController = controller;
-          _startLocationUpdates();
-        },
-        myLocationEnabled: false,
-        myLocationButtonEnabled: false,
-        markers: _buildMarkers(),
-      )
-          : _buildPermissionDeniedWidget(),
-    );
+    if (byteData != null) {
+      return BitmapDescriptor.fromBytes(byteData.buffer.asUint8List());
+    } else {
+      throw Exception('Failed to convert image to byte data');
+    }
   }
 
   Widget _buildPermissionDeniedWidget() {
@@ -196,13 +203,16 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> requestLocationPermission() async {
-    bool serviceEnabled = await location.serviceEnabled();
+    bool serviceEnabled;
+    PermissionStatus permissionStatus;
+
+    serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) return;
     }
 
-    PermissionStatus permissionStatus = await location.hasPermission();
+    permissionStatus = await location.hasPermission();
     if (permissionStatus == PermissionStatus.denied) {
       permissionStatus = await location.requestPermission();
       if (permissionStatus != PermissionStatus.granted) return;
@@ -221,18 +231,23 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _startLocationUpdates() {
-    Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      location.getLocation().then((LocationData currentLocation) {
-        setState(() {
-          _currentPosition = LatLng(
-            currentLocation.latitude ?? 0,
-            currentLocation.longitude ?? 0,
-          );
-        });
-        _moveCameraToPosition(_currentPosition);
-        _checkProximityToPlaces();
-      });
-    });
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (Timer timer) {
+        location.getLocation().then(
+              (LocationData currentLocation) {
+            setState(() {
+              _currentPosition = LatLng(
+                currentLocation.latitude ?? 0,
+                currentLocation.longitude ?? 0,
+              );
+            });
+            _moveCameraToPosition(_currentPosition);
+            _checkProximityToPlaces();
+          },
+        );
+      },
+    );
   }
 
   void _moveCameraToPosition(LatLng position) {
@@ -254,8 +269,8 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    for (var place in _places) {
-      if (_placeMarkerIcon != null) {
+    if (_placeMarkerIcon != null) {
+      for (final place in _places) {
         markers.add(
           Marker(
             markerId: MarkerId(place.location.toString()),
@@ -294,7 +309,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _showPlaceDetails(Place place) async {
-    if (_modalShown) return;
+    if (_modalShown) {
+      return;
+    }
     _modalShown = true;
 
     try {
