@@ -241,6 +241,7 @@ class _MainScreenState extends State<MainScreen> {
               color: context.primary,
               fontSize: AppSize.fontMedium,
             ),
+            const Vertical.bigExtra(),
             Transform.rotate(
               angle: -rotationAngle,
               child: Icon(
