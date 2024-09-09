@@ -222,7 +222,8 @@ class _MainScreenState extends State<MainScreen> {
 
     final angle = _calculateAngle(_currentPosition, closestPlace.location);
     final rotationAngle = angle - (_heading * pi / 180);
-    final distanceToClosestPlace = _calculateDistance(_currentPosition, closestPlace.location);
+    final distanceToClosestPlace =
+        _calculateDistance(_currentPosition, closestPlace.location);
 
     return Positioned.fill(
       child: Container(
@@ -236,38 +237,11 @@ class _MainScreenState extends State<MainScreen> {
               fontSize: AppSize.fontMedium,
               fontWeight: FontWeight.bold,
             ),
-
-            GestureDetector(
-              onLongPress: () {
-                setState(() {
-                  _isRideMode = false;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: context.primary,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Column(children: [
-                  Texts(
-                    "Back to map mode",
-                    color: context.cardBackground,
-                    fontWeight: FontWeight.w500,
-                    fontSize: AppSize.fontMedium,
-                  ),
-                  Texts(
-                    "(press for 1 sec)",
-                    color: context.cardBackground,
-                    fontWeight: FontWeight.w500,
-                    fontSize: AppSize.fontSmall,
-                  ),
-                ],
-                )
-
-              ),
+            Texts(
+              '${distanceToClosestPlace.toStringAsFixed(0)} meters away',
+              color: context.primary,
+              fontSize: AppSize.fontMedium,
             ),
-
             const Vertical.bigExtra(),
             Transform.rotate(
               angle: -rotationAngle,
@@ -278,17 +252,40 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const Vertical.bigExtra(),
-            Texts(
-              '${distanceToClosestPlace.toStringAsFixed(0)} meters away',
-              color: context.primary,
-              fontSize: AppSize.fontMedium,
+            GestureDetector(
+              onLongPress: () {
+                setState(() {
+                  _isRideMode = false;
+                });
+              },
+              child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: context.primary,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    children: [
+                      Texts(
+                        "Back to map mode",
+                        color: context.cardBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: AppSize.fontMedium,
+                      ),
+                      Texts(
+                        "(press for 1 sec)",
+                        color: context.cardBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: AppSize.fontSmall,
+                      ),
+                    ],
+                  )),
             ),
           ],
         ),
       ),
     );
   }
-
 
   Widget _buildPermissionDeniedWidget() {
     return Center(
