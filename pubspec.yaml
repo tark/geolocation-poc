@@ -44,6 +44,14 @@ dependencies:
   geolocator: ^13.0.1
   location: ^6.0.2
   audioplayers: ^6.1.0
+  flutter_background_geolocation: ^4.16.0
+  flutter_local_notifications: ^17.2.2
+  audio_service: ^0.18.15
+  slider_button: ^2.1.0
+  wakelock_plus: ^1.2.8
+  flutter_compass: ^0.8.0
+
+
 
 dev_dependencies:
   flutter_lints: ^2.0.0
