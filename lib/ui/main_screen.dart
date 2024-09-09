@@ -236,21 +236,6 @@ class _MainScreenState extends State<MainScreen> {
               fontSize: AppSize.fontMedium,
               fontWeight: FontWeight.bold,
             ),
-            Texts(
-              '${distanceToClosestPlace.toStringAsFixed(0)} meters away',
-              color: context.primary,
-              fontSize: AppSize.fontMedium,
-            ),
-            const Vertical.bigExtra(),
-            Transform.rotate(
-              angle: -rotationAngle,
-              child: Icon(
-                Icons.arrow_back_rounded,
-                size: 100,
-                color: context.primary,
-              ),
-            ),
-            const Vertical.bigExtra(),
             SliderButton(
               action: () async {
                 setState(() {
@@ -269,6 +254,22 @@ class _MainScreenState extends State<MainScreen> {
                 color: context.cardBackground,
                 size: AppSize.iconSizeBig,
               ),
+            ),
+
+            const Vertical.bigExtra(),
+            Transform.rotate(
+              angle: -rotationAngle,
+              child: Icon(
+                Icons.arrow_back_rounded,
+                size: 100,
+                color: context.primary,
+              ),
+            ),
+            const Vertical.bigExtra(),
+            Texts(
+              '${distanceToClosestPlace.toStringAsFixed(0)} meters away',
+              color: context.primary,
+              fontSize: AppSize.fontMedium,
             ),
           ],
         ),
