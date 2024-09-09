@@ -236,23 +236,35 @@ class _MainScreenState extends State<MainScreen> {
               fontSize: AppSize.fontMedium,
               fontWeight: FontWeight.bold,
             ),
-            SliderButton(
-              action: () async {
+
+            GestureDetector(
+              onLongPress: () {
                 setState(() {
                   _isRideMode = false;
                 });
-                return null;
               },
-              label: Texts(
-                "Back to map mode",
-                color: context.cardBackground,
-                fontWeight: FontWeight.w500,
-                fontSize: AppSize.fontNormal,
-              ),
-              icon: Icon(
-                Icons.arrow_forward,
-                color: context.cardBackground,
-                size: AppSize.iconSizeBig,
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: context.primary,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Column(children: [
+                  Texts(
+                    "Back to map mode",
+                    color: context.cardBackground,
+                    fontWeight: FontWeight.w500,
+                    fontSize: AppSize.fontMedium,
+                  ),
+                  Texts(
+                    "(press for 1 sec)",
+                    color: context.cardBackground,
+                    fontWeight: FontWeight.w500,
+                    fontSize: AppSize.fontSmall,
+                  ),
+                ],
+                )
+
               ),
             ),
 
@@ -276,6 +288,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+
 
   Widget _buildPermissionDeniedWidget() {
     return Center(
