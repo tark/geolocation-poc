@@ -28,12 +28,11 @@ class ColoredBars extends StatelessWidget {
         statusBarColor: statusBarColor ?? context.background,
         // statusBarBrightness: _brightness(context, state),
         // statusBarIconBrightness: _brightness(context, state),
-        systemNavigationBarColor: navBarColor ??
-            BottomNavigationBarTheme.of(context).backgroundColor,
+        systemNavigationBarColor:
+            navBarColor ?? BottomNavigationBarTheme.of(context).backgroundColor,
         // systemNavigationBarIconBrightness: _brightness(context, state),
       ),
       child: child,
     );
   }
-
 }

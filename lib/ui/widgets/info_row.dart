@@ -48,7 +48,7 @@ class InfoRow extends StatelessWidget {
         const Horizontal.small(),
         Expanded(
           child: Texts(
-            title.isEmpty ? 'Place to be defined': title,
+            title.isEmpty ? 'Place to be defined' : title,
             fontSize: AppSize.fontRegular,
             fontWeight: FontWeight.w400,
             color: color,

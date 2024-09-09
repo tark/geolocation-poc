@@ -30,7 +30,7 @@ class Warning extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment:
-        isCenter ? MainAxisAlignment.center : MainAxisAlignment.start,
+            isCenter ? MainAxisAlignment.center : MainAxisAlignment.start,
         children: [
           Padding(
             padding: AppPadding.verticalMicro,

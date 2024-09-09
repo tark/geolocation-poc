@@ -107,7 +107,6 @@ Future<T?> showBottomModal<T>({
   return result;
 }
 
-
 Future<T?> showTopModal<T>({
   required BuildContext context,
   required WidgetBuilder builder,

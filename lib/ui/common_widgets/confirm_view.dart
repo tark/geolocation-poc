@@ -71,7 +71,9 @@ class ConfirmView extends StatelessWidget {
                 Expanded(
                   child: Buttons.flat(
                     text: cancelText ?? 'cancel'.tr(),
-                    buttonColor: danger ? context.secondary.withOpacity(0.1) : context.error,
+                    buttonColor: danger
+                        ? context.secondary.withOpacity(0.1)
+                        : context.error,
                     textColor: danger ? context.primary : null,
                     iconData: cancelIcon ?? Icons.close,
                     onPressed: () {

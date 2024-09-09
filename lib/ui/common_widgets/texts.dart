@@ -260,13 +260,11 @@ class RichTextData {
     this.text, {
     this.size,
     this.color,
-  })  :
-        fontWeight = FontWeight.bold;
+  }) : fontWeight = FontWeight.bold;
 
   RichTextData.light(
     this.text, {
     this.size,
     this.color,
-  })  :
-        fontWeight = FontWeight.w300;
+  }) : fontWeight = FontWeight.w300;
 }

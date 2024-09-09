@@ -80,7 +80,6 @@ class Api {
 
       return response.data ?? {};
     } on DioError catch (e) {
-
       l('_post', 'data:             ${e.response?.data.toString()}');
       l('_post', 'message:          ${e.message}');
       if (e.response?.data is String) {
@@ -104,7 +103,6 @@ class Api {
       l('_delete', response);
       return response.data ?? {};
     } on DioError catch (e) {
-
       l('_delete', 'dio error - ${e.message}');
       throw e.message ?? 'Unknown error';
     }
@@ -117,8 +115,8 @@ class Api {
     try {
       final dio = _dio;
       if (dio == null) {
-return {};
-          }
+        return {};
+      }
 
       final response = await dio.put(
         '/$path',

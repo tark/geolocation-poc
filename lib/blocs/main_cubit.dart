@@ -13,8 +13,5 @@ class MainCubit extends Cubit<MainState> {
   }
 
 //
-  Future _init() async {
-
-  }
-
+  Future _init() async {}
 }

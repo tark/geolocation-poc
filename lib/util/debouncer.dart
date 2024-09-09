@@ -13,7 +13,7 @@ class Debouncer {
   }
 
   void cancel() {
-    if(_timer?.isActive ?? false) {
+    if (_timer?.isActive ?? false) {
       _timer?.cancel();
     }
   }

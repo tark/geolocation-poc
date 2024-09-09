@@ -49,7 +49,6 @@ class _AnimatedCircleState extends State<AnimatedCircle>
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: AnimatedBuilder(
         animation: _animation,
@@ -70,7 +69,7 @@ class _AnimatedCircleState extends State<AnimatedCircle>
     );
   }
 
-  Widget _circle(double value){
+  Widget _circle(double value) {
     return Container(
       width: value * _maxSize,
       height: value * _maxSize,

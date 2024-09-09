@@ -72,8 +72,7 @@ class MyCheckbox extends StatelessWidget {
           ? AppImages.checkBoxCheckedDarkIcon
           : AppImages.checkBoxDarkIcon;
     } else {
-      icon =
-      checked ? AppImages.checkBoxCheckedIcon : AppImages.checkBoxIcon;
+      icon = checked ? AppImages.checkBoxCheckedIcon : AppImages.checkBoxIcon;
     }
 
     return SvgPicture.asset(icon);

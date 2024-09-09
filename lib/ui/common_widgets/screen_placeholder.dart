@@ -44,7 +44,10 @@ class ScreenPlaceholder extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: color ??
                   (dark
-                      ? Theme.of(context).colorScheme.secondary.withOpacity(0.15)
+                      ? Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.15)
                       : Theme.of(context).colorScheme.primary.withOpacity(0.2)),
               fontSize: AppSize.fontNormal,
               isCenter: true,

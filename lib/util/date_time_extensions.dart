@@ -67,8 +67,7 @@ extension DateTimeExtensions on DateTime {
     return DateTime.now().year == year;
   }
 
-  String formatYYYYMMDD () {
+  String formatYYYYMMDD() {
     return dateFormatter.format(this);
   }
-
 }

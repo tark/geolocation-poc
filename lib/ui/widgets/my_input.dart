@@ -208,11 +208,11 @@ class _MyInputState extends State<MyInput> {
                       if (widget.type == MyInputType.cardExpires)
                         CreditCardExpirationDateFormatter(),
                       // if (_isMoney())
-                        // CurrencyTextInputFormatter(
-                        //   locale: 'en',
-                        //   decimalDigits: 0,
-                        //   symbol: '\$',
-                        // ),
+                      // CurrencyTextInputFormatter(
+                      //   locale: 'en',
+                      //   decimalDigits: 0,
+                      //   symbol: '\$',
+                      // ),
                       if (widget.caps) UpperCaseTextFormatter(),
                       if (_isName()) CapitalizationFormatter(),
                     ],
@@ -240,13 +240,13 @@ class _MyInputState extends State<MyInput> {
                 if (_isPhone() && _showCountryInfo) _countryInfo(),
                 if (_isCard()) _cardInfo(),
                 // if (_isCard() && !_isValid() && widget.onCardScanned != null)
-                  IconButton(
-                    onPressed: () => cardScanChannel.invokeMethod('scanCard'),
-                    icon: Icon(
-                      Icons.camera_alt_outlined,
-                      color: context.secondary.withOpacity(0.2),
-                    ),
+                IconButton(
+                  onPressed: () => cardScanChannel.invokeMethod('scanCard'),
+                  icon: Icon(
+                    Icons.camera_alt_outlined,
+                    color: context.secondary.withOpacity(0.2),
                   ),
+                ),
                 if (!_isValid() && widget.trailing != null) widget.trailing!,
                 if (!_isValid() && widget.trailingButton != null)
                   _trailingButton(),
@@ -325,7 +325,7 @@ class _MyInputState extends State<MyInput> {
         ClipRRect(
           borderRadius: BorderRadius.circular(2),
           child: Image.network(
-            'https://flagsapi.com/${code?.toUpperCase()}/flat/64.png',
+            'https://flagsapi.com/${code.toUpperCase()}/flat/64.png',
             width: 24,
             height: 24,
             fit: BoxFit.fill,
@@ -501,7 +501,6 @@ class _MyInputState extends State<MyInput> {
       ),
     );
   }
-
 }
 
 class UpperCaseTextFormatter extends TextInputFormatter {

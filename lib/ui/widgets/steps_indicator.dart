@@ -26,7 +26,9 @@ class StepsIndicator extends StatelessWidget {
               child: SizedBox(
                 height: 2,
                 child: ColoredBox(
-                  color: i <= step ? context.accent : context.primary.withOpacity(0.1),
+                  color: i <= step
+                      ? context.accent
+                      : context.primary.withOpacity(0.1),
                 ),
               ),
             ),

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 
-
 class ServerErrorStatus {
   static const unauthorized = 1;
   static const error = 2;
@@ -21,7 +20,6 @@ class MainInterceptor implements InterceptorsWrapper {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-
     // t('onRequest', '---------');
     // t('onRequest', '${options.method}: ${options.baseUrl}${options.path}');
     // t('onRequest', options.data);
@@ -35,7 +33,6 @@ class MainInterceptor implements InterceptorsWrapper {
     Response response,
     ResponseInterceptorHandler handler,
   ) async {
-
     final o = response.requestOptions;
     // s('onResponse - ---------');
     // s('onResponse - ${o.method}: ${o.baseUrl}${o.path}');

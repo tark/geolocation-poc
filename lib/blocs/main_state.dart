@@ -6,7 +6,9 @@ class MainState extends Equatable {
     this.apiUrl = '',
   });
 
-  const MainState.initial() : appVersion = '', apiUrl = '';
+  const MainState.initial()
+      : appVersion = '',
+        apiUrl = '';
 
   final String? appVersion;
   final String? apiUrl;

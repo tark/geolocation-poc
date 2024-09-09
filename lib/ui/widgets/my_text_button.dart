@@ -115,7 +115,7 @@ class MyTextButton extends StatelessWidget {
                           child: Icon(
                             trailingIconData,
                             color:
-                            color ?? (error ? errorColor : secondaryColor),
+                                color ?? (error ? errorColor : secondaryColor),
                             size: trailingIconDataSize ?? 16,
                           ),
                         ),
@@ -125,7 +125,7 @@ class MyTextButton extends StatelessWidget {
                           child: SvgPicture.asset(
                             trailingIcon!,
                             color:
-                            color ?? (error ? errorColor : secondaryColor),
+                                color ?? (error ? errorColor : secondaryColor),
                           ),
                         ),
                     ],
