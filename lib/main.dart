@@ -22,8 +22,6 @@ Future<void> main() async {
     statusBarIconBrightness: Brightness.light,
   ));
 
-  await dotenv.load(fileName: ".env");
-
   final api = Api();
 
   await SystemChrome.setPreferredOrientations([
