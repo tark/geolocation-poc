@@ -16,7 +16,6 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:location/location.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:slider_button/slider_button.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:geolocation_poc/util/log.dart';
 import 'common_widgets/buttons.dart';
@@ -31,11 +30,14 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
   GoogleMapController? _mapController;
 
   BitmapDescriptor? _userMarkerIcon;
   BitmapDescriptor? _placeMarkerIcon;
+
+  late AnimationController _animationController;
 
   final location = Location();
   final audioHandler = MyAudioHandler();
@@ -106,13 +108,12 @@ class _MainScreenState extends State<MainScreen> {
   var _odometer;
   var _content;
 
-  var _heading = 0;
-
   JsonEncoder encoder = const JsonEncoder.withIndent('     ');
 
   @override
   void initState() {
     super.initState();
+
     _isMoving = false;
     _enabled = false;
     _content = '';
@@ -124,13 +125,12 @@ class _MainScreenState extends State<MainScreen> {
     activateAudioSession();
     startAudioService();
 
-    NotificaitonsUtil().initNotifications();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
 
-    FlutterCompass.events?.listen((CompassEvent event) {
-      setState(() {
-        _heading = event.heading?.toInt() ?? 0;
-      });
-    });
+    NotificaitonsUtil().initNotifications();
 
     bg.BackgroundGeolocation.onLocation(_onLocation);
     bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
@@ -202,7 +202,7 @@ class _MainScreenState extends State<MainScreen> {
     if (nearbyPlaces.isEmpty) {
       return Positioned.fill(
         child: Container(
-          color: Colors.black.withOpacity(0.8),
+          color: context.background,
           child: const Center(
             child: Texts(
               'No nearby locations within 500 meters.',
@@ -220,19 +220,19 @@ class _MainScreenState extends State<MainScreen> {
       return distanceA < distanceB ? a : b;
     });
 
-    final angle = _calculateAngle(_currentPosition, closestPlace.location);
-    final rotationAngle = angle - (_heading * pi / 180);
     final distanceToClosestPlace =
         _calculateDistance(_currentPosition, closestPlace.location);
+    final bearingToPlace =
+        _calculateBearing(_currentPosition, closestPlace.location);
 
     return Positioned.fill(
       child: Container(
-        color: Colors.black.withOpacity(0.8),
+        color: context.background,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Texts(
-              'Closest location: ' + closestPlace.name,
+              'Closest location: ${closestPlace.name}',
               color: context.primary,
               fontSize: AppSize.fontMedium,
               fontWeight: FontWeight.bold,
@@ -242,44 +242,76 @@ class _MainScreenState extends State<MainScreen> {
               color: context.primary,
               fontSize: AppSize.fontMedium,
             ),
-            const Vertical.bigExtra(),
-            Transform.rotate(
-              angle: -rotationAngle,
-              child: Icon(
-                Icons.arrow_back_rounded,
-                size: 100,
-                color: context.primary,
-              ),
-            ),
-            const Vertical.bigExtra(),
-            GestureDetector(
-              onLongPress: () {
-                setState(() {
-                  _isRideMode = false;
-                });
-              },
-              child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: context.primary,
-                    borderRadius: BorderRadius.circular(8.0),
+            StreamBuilder<CompassEvent>(
+              stream: FlutterCompass.events,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Texts('Error reading heading: ${snapshot.error}');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+
+                double? deviceHeading = snapshot.data?.heading;
+
+                if (deviceHeading == null) {
+                  return const Texts("Device does not have sensors!");
+                }
+
+                double rotationAngle =
+                    (bearingToPlace - deviceHeading) * (pi / 180);
+
+                return Transform.rotate(
+                  angle: rotationAngle,
+                  child: const Icon(
+                    Icons.navigation,
+                    size: 100,
+                    color: Colors.white,
                   ),
-                  child: Column(
-                    children: [
-                      Texts(
-                        "Back to map mode",
-                        color: context.cardBackground,
-                        fontWeight: FontWeight.w500,
-                        fontSize: AppSize.fontMedium,
-                      ),
-                      Texts(
-                        "(press for 1 sec)",
-                        color: context.cardBackground,
-                        fontWeight: FontWeight.w500,
-                        fontSize: AppSize.fontSmall,
-                      ),
-                    ],
-                  )),
+                );
+              },
+            ),
+            GestureDetector(
+              onLongPressStart: _onLongPressStart,
+              onLongPressEnd: _onLongPressEnd,
+              child: AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  final screenWidth = MediaQuery.of(context).size.width;
+
+                  final buttonWidth = screenWidth * 0.6;
+
+                  return Container(
+                    width: buttonWidth,
+                    padding: AppPadding.allSmall,
+                    decoration: BoxDecoration(
+                      color: Color.lerp(context.primary, context.primary,
+                          _animationController.value),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Column(
+                      children: [
+                        Texts(
+                          "Back to map mode",
+                          color: context.cardBackground,
+                          fontWeight: FontWeight.w500,
+                          fontSize: AppSize.fontMedium,
+                        ),
+                        const Vertical.small(),
+                        LinearProgressIndicator(
+                          value: _animationController.value,
+                          backgroundColor: context.primary,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            context.cardBackground,
+                          ),
+                        ),
+                        const Vertical.small(),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -302,7 +334,7 @@ class _MainScreenState extends State<MainScreen> {
             fontWeight: FontWeight.w500,
             color: context.secondary,
           ),
-          const SizedBox(height: 16),
+          const Vertical.normal(),
           Buttons(
             text: 'Retry',
             onPressed: requestLocationPermission,
@@ -376,14 +408,8 @@ class _MainScreenState extends State<MainScreen> {
     return 12742 * asin(sqrt(a)) * 1000;
   }
 
-  _calculateAngle(LatLng from, LatLng to) {
-    final deltaX = to.longitude - from.longitude;
-    final deltaY = to.latitude - from.latitude;
-    return atan2(deltaY, deltaX); // Return angle in radians
-  }
-
   Future<void> _loadCustomMarkers() async {
-// _userMarkerIcon = await _createCircleMarker(Colors.blue);
+    // _userMarkerIcon = await _createCircleMarker(Colors.blue);
     _placeMarkerIcon = await _createCircleMarker(Colors.red);
   }
 
@@ -468,7 +494,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _showPlaceDetails(Place place) async {
-    if (_modalShown) {
+    if (_modalShown || _isRideMode) {
       return;
     }
 
@@ -520,6 +546,20 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  double _calculateBearing(LatLng from, LatLng to) {
+    final lat1 = from.latitude * pi / 180;
+    final lon1 = from.longitude * pi / 180;
+    final lat2 = to.latitude * pi / 180;
+    final lon2 = to.longitude * pi / 180;
+
+    final deltaLon = lon2 - lon1;
+    final y = sin(deltaLon) * cos(lat2);
+    final x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(deltaLon);
+    final bearing = atan2(y, x);
+
+    return (bearing * 180 / pi + 360) % 360;
+  }
+
   Future<void> startAudioService() async {
     AudioHandler audioHandler = await AudioService.init(
       builder: () => MyAudioHandler(),
@@ -557,6 +597,19 @@ class _MainScreenState extends State<MainScreen> {
     _mapController?.animateCamera(
       CameraUpdate.newLatLng(position),
     );
+  }
+
+  void _onLongPressStart(LongPressStartDetails details) {
+    _animationController.forward();
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    if (_animationController.value == 1.0) {
+      setState(() {
+        _isRideMode = false;
+      });
+    }
+    _animationController.reverse();
   }
 
   void _checkProximityToPlaces() {
