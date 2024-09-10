@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.dark,
         theme: lightTheme,
         darkTheme: darkTheme,
-        home: MainScreen(),
+        home: const MainScreen(),
         title: 'Flutter GPS',
       ),
     );
