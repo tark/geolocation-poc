@@ -96,6 +96,30 @@ class _MainScreenState extends State<MainScreen>
       imageUrl: "assets/images/1.jpeg",
       audioUrl: "audio/park.mp3",
     ),
+    Place(
+      location: const LatLng(45.03540074202644, 41.92662634902971),
+      name: "Водоканал",
+      imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/park.mp3",
+    ),
+    Place(
+      location: const LatLng(45.03746764081544, 41.917761413470075),
+      name: "Универсам",
+      imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/park.mp3",
+    ),
+    Place(
+      location: const LatLng(45.035379433157956, 41.930170950634896),
+      name: "Пржевальского",
+      imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/park.mp3",
+    ),
+    Place(
+      location: const LatLng(45.03569830859491, 41.925819493534775),
+      name: "Водоканал",
+      imageUrl: "assets/images/1.jpeg",
+      audioUrl: "audio/park.mp3",
+    ),
   ];
 
   var _currentPosition = const LatLng(0, 0);
