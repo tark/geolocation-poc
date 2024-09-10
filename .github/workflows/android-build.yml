@@ -1,4 +1,4 @@
-name: Flutter Android CI
+name: Flutter CI
 
 on:
   push:
@@ -7,26 +7,31 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.10.0' 
+        flutter-version: '3.10.0'
+
+    - name: Install Dart SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https
+        sudo sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
+        sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
+        sudo apt-get update
+        sudo apt-get install dart=3.3.0-1
 
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Build APK
-      run: flutter build apk --release
-
-    - name: Build AAB
-      run: flutter build appbundle --release
+    - name: Run tests
+      run: flutter test
