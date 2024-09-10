@@ -122,6 +122,7 @@ class _MainScreenState extends State<MainScreen>
     ),
   ];
 
+  var platform = const MethodChannel('com.yourcompany.audio');
   var _currentPosition = const LatLng(0, 0);
   var _permissionGranted = false;
   var _modalShown = false;
@@ -131,6 +132,7 @@ class _MainScreenState extends State<MainScreen>
   var _motionActivity;
   var _odometer;
   var _content;
+
 
   JsonEncoder encoder = const JsonEncoder.withIndent('     ');
 
@@ -148,6 +150,7 @@ class _MainScreenState extends State<MainScreen>
     requestLocationPermission();
     activateAudioSession();
     startAudioService();
+    platform.invokeMethod('startAudioService');
 
     _animationController = AnimationController(
       vsync: this,
@@ -640,11 +643,11 @@ class _MainScreenState extends State<MainScreen>
     for (final place in _locations) {
       final distance = _calculateDistance(_currentPosition, place.location);
 
-      if (distance < 15 && !_modalShown && !place.hasShownPopup) {
+      if (distance < 20 && !_modalShown && !place.hasShownPopup) {
         _showPlaceDetails(place);
         place.hasShownPopup = true;
         break;
-      } else if (distance > 15 && place.hasShownPopup) {
+      } else if (distance > 20 && place.hasShownPopup) {
         place.hasShownPopup = false;
       }
     }
@@ -658,7 +661,7 @@ class _MainScreenState extends State<MainScreen>
     for (final place in _locations) {
       final distance = _calculateDistance(currentLatLng, place.location);
 
-      if (distance < 10) {
+      if (distance < 20) {
         final modalRoute = ModalRoute.of(context);
         if (modalRoute != null && !modalRoute.isCurrent) {
           audioHandler.playUrl(place.audioUrl);
