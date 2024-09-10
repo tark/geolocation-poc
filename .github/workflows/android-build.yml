@@ -1,4 +1,4 @@
-name: Android CI/CD
+name: Flutter Android CI
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   build:
@@ -19,7 +20,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.0.0'  
+        flutter-version: '3.0.0'  # Adjust to your Flutter version
 
     - name: Install dependencies
       run: flutter pub get
@@ -29,24 +30,3 @@ jobs:
 
     - name: Build AAB
       run: flutter build appbundle --release
-
-    - name: Sign APK & AAB
-      env:
-        KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      run: |
-        echo $KEYSTORE_FILE | base64 --decode > keystore.jks
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore keystore.jks -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD build/app/outputs/apk/release/app-release-unsigned.apk $KEY_ALIAS
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore keystore.jks -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD build/app/outputs/bundle/release/app-release.aab $KEY_ALIAS
-        # Выравнивание APK
-        zipalign -v 4 build/app/outputs/apk/release/app-release-unsigned.apk build/app/outputs/apk/release/app-release.apk
-
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: app-release-files
-        path: |
-          build/app/outputs/apk/release/app-release.apk
-          build/app/outputs/bundle/release/app-release.aab
