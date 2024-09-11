@@ -17,17 +17,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Ensure Flutter/Dart cache is cleared to prevent old versions from being used
-    - name: Clear Flutter/Dart Cache
-      run: |
-        flutter clean
-        rm -rf ~/.pub-cache
-
-    # Set up Flutter 3.3.0, which comes with the correct Dart version (>=3.3.0)
+    # Set up Flutter 3.3.0
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.3.0'
+
+    # Clear Flutter/Dart Cache
+    - name: Clear Flutter/Dart Cache
+      run: |
+        flutter clean
+        rm -rf ~/.pub-cache
 
     # Verify the installed Flutter and Dart versions
     - name: Check Flutter and Dart Versions
