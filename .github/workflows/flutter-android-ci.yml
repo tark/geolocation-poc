@@ -21,8 +21,8 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.3.0'  # Explicitly set Flutter version
-        channel: 'stable'         # Optional: Set channel if needed
+       flutter-version: '3.13.0'  # Updated to match Dart SDK requirement
+       channel: 'stable'       # Optional: Set channel if needed
 
     # Clear Flutter/Dart Cache
     - name: Clear Flutter/Dart Cache
