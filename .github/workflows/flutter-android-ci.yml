@@ -22,7 +22,6 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
        flutter-version: '3.20.0'  # Updated to match Dart SDK requirement
-       channel: 'stable'       # Optional: Set channel if needed
 
     # Clear Flutter/Dart Cache
     - name: Clear Flutter/Dart Cache
