@@ -52,7 +52,7 @@ dependencies:
   flutter_compass:
     git:
       url: https://github.com/Dapucla/flutter_compass.git
-      ref: main
+      ref: master
 
 
 
