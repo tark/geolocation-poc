@@ -42,6 +42,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        appCompatVersion    = "1.4.2"          
+        playServicesLocationVersion = "21.0.1"  
     }
 
     buildTypes {
