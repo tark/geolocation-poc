@@ -17,44 +17,39 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Set up Flutter 3.3.0
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.3.0'
+        flutter-version: 'stable'  # Use the latest stable Flutter version
 
-    # Clear Flutter/Dart Cache
+    - name: Verify Flutter and Dart versions
+      run: |
+        flutter --version
+        dart --version
+
+    - name: Disable Flutter Analytics
+      run: flutter config --no-analytics
+
     - name: Clear Flutter/Dart Cache
       run: |
         flutter clean
         rm -rf ~/.pub-cache
 
-    # Verify the installed Flutter and Dart versions
-    - name: Check Flutter and Dart Versions
-      run: |
-        flutter --version
-        dart --version
-
-    # Install dependencies
     - name: Install dependencies
       run: flutter pub get
 
-    # Build the APK
     - name: Build APK
       run: flutter build apk --release
 
-    # Build the AAB
     - name: Build AAB
       run: flutter build appbundle --release
 
-    # Upload APK artifact
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
         name: app-release.apk
         path: build/app/outputs/apk/release/app-release.apk
 
-    # Upload AAB artifact
     - name: Upload AAB
       uses: actions/upload-artifact@v3
       with:
