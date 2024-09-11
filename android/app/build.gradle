@@ -30,19 +30,20 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
     }
 
     defaultConfig {
         applicationId = "com.example.geolocation_poc"
-        minSdk = 34
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 21
+        targetSdk = 34
+        compileSdkVersion = 34
         versionCode 1
         versionName "1.0"
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
             minifyEnabled true
             shrinkResources false
             proguardFiles "${project(':flutter_background_geolocation').projectDir}/proguard-rules.pro"
@@ -57,4 +58,5 @@ flutter {
 dependencies {
     implementation project(':flutter_background_geolocation')
     implementation "androidx.appcompat:appcompat:1.4.2"
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.1' // Use the latest version available
 }
