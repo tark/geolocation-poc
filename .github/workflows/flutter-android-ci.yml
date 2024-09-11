@@ -22,6 +22,11 @@ jobs:
       with:
         flutter-version: '3.3.0'
 
+    - name: Verify Flutter and Dart versions
+      run: |
+        flutter --version
+        dart --version
+
     - name: Install dependencies
       run: flutter pub get
 
