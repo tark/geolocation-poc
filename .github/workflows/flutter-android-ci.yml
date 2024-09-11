@@ -1,6 +1,5 @@
 name: Flutter Android CI
 
-# Триггеры: запуск на push или pull request в ветку main
 on:
   push:
     branches:
