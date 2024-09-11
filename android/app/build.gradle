@@ -38,8 +38,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        appCompatVersion = "1.4.2"
-        playServicesLocationVersion = "21.0.1"
     }
 
     buildTypes {
@@ -47,11 +45,15 @@ android {
             signingConfig = signingConfigs.debug
             minifyEnabled true
             shrinkResources false
-            proguardFiles "${background_geolocation.projectDir}/proguard-rules.pro"
+            proguardFiles "${project(':flutter_background_geolocation').projectDir}/proguard-rules.pro"
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation "androidx.appcompat:appcompat:1.4.2"
 }
