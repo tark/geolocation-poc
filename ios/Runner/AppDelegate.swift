@@ -14,7 +14,6 @@ import flutter_local_notifications
     GMSServices.provideAPIKey("AIzaSyB09V4K-O3sQaG0ZwrNdKFZKsBSVEP-_vQ")
     GeneratedPluginRegistrant.register(with: self)
 
-    // Initialize MethodChannel correctly
     let controller = window?.rootViewController as! FlutterViewController
     audioChannel = FlutterMethodChannel(name: "com.yourcompany.audio",
                                          binaryMessenger: controller.binaryMessenger)
@@ -27,7 +26,13 @@ import flutter_local_notifications
           try session.setActive(true)
           result("Audio session started")
         } catch {
-          result(FlutterError(code: "UNAVAILABLE", message: "Audio session couldn't start", details: nil))
+      result(
+        FlutterError(
+          code: "UNAVAILABLE",
+          message: "Audio session couldn't start",
+          details: nil
+        )
+      )
         }
       } else {
         result(FlutterMethodNotImplemented)
