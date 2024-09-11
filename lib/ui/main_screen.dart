@@ -33,7 +33,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   GoogleMapController? _mapController;
-
   BitmapDescriptor? _userMarkerIcon;
   BitmapDescriptor? _placeMarkerIcon;
 
@@ -127,25 +126,17 @@ class _MainScreenState extends State<MainScreen>
   var _permissionGranted = false;
   var _modalShown = false;
   var _isRideMode = false;
-  var _isMoving;
-  var _enabled;
-  var _motionActivity;
-  var _odometer;
-  var _content;
-
+  var _isMoving = false;
+  var _enabled = false;
+  var _motionActivity = 'UNKNOWN';
+  var _odometer = '0';
+  var _content = '';
 
   JsonEncoder encoder = const JsonEncoder.withIndent('     ');
 
   @override
   void initState() {
     super.initState();
-
-    _isMoving = false;
-    _enabled = false;
-    _content = '';
-    _motionActivity = 'UNKNOWN';
-    _odometer = '0';
-
     _loadCustomMarkers();
     requestLocationPermission();
     activateAudioSession();
@@ -173,10 +164,10 @@ class _MainScreenState extends State<MainScreen>
             debug: true,
             logLevel: bg.Config.LOG_LEVEL_VERBOSE,
             reset: true))
-        .then((bg.State state) {
+        .then((bg.State s) {
       setState(() {
-        _enabled = state.enabled;
-        _isMoving = state.isMoving == true;
+        _enabled = s.enabled;
+        _isMoving = s.isMoving == true;
       });
     });
 
@@ -221,8 +212,8 @@ class _MainScreenState extends State<MainScreen>
   Widget _buildRideModeOverlay() {
     WakelockPlus.enable();
 
-    List<Place> nearbyPlaces = _locations.where((place) {
-      final distance = _calculateDistance(_currentPosition, place.location);
+    var nearbyPlaces = _locations.where((p) {
+      final distance = _calculateDistance(_currentPosition, p.location);
       return distance <= 500;
     }).toList();
 
@@ -241,7 +232,7 @@ class _MainScreenState extends State<MainScreen>
       );
     }
 
-    Place closestPlace = nearbyPlaces.reduce((a, b) {
+    var closestPlace = nearbyPlaces.reduce((a, b) {
       final distanceA = _calculateDistance(_currentPosition, a.location);
       final distanceB = _calculateDistance(_currentPosition, b.location);
       return distanceA < distanceB ? a : b;
@@ -410,7 +401,9 @@ class _MainScreenState extends State<MainScreen>
       for (final place in _locations) {
         markers.add(
           Marker(
-            markerId: MarkerId(place.location.toString()),
+            markerId: MarkerId(
+              place.location.toString(),
+            ),
             position: place.location,
             icon: _placeMarkerIcon ?? BitmapDescriptor.defaultMarker,
             onTap: () {
@@ -689,23 +682,23 @@ class _MainScreenState extends State<MainScreen>
         .invokeMethod('startAudioService');
   }
 
-  void _onActivityChange(bg.ActivityChangeEvent event) {
-    l('[activitychange] - $event');
+  void _onActivityChange(bg.ActivityChangeEvent e) {
+    l('[activitychange] - $e');
 
     setState(() {
-      _motionActivity = event.activity;
+      _motionActivity = e.activity;
     });
   }
 
-  void _onProviderChange(bg.ProviderChangeEvent event) {
-    l('$event');
+  void _onProviderChange(bg.ProviderChangeEvent e) {
+    l('$e');
 
     setState(() {
-      _content = encoder.convert(event.toMap());
+      _content = encoder.convert(e.toMap());
     });
   }
 
-  void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
-    l('$event');
+  void _onConnectivityChange(bg.ConnectivityChangeEvent e) {
+    l('$e');
   }
 }
