@@ -35,9 +35,7 @@ class _MainScreenState extends State<MainScreen>
   GoogleMapController? _mapController;
   BitmapDescriptor? _userMarkerIcon;
   BitmapDescriptor? _placeMarkerIcon;
-
   late AnimationController _animationController;
-
   final location = Location();
   final audioHandler = MyAudioHandler();
   final List<Place> _locations = [
@@ -120,7 +118,6 @@ class _MainScreenState extends State<MainScreen>
       audioUrl: "audio/park.mp3",
     ),
   ];
-
   var platform = const MethodChannel('com.yourcompany.audio');
   var _currentPosition = const LatLng(0, 0);
   var _permissionGranted = false;
@@ -131,7 +128,6 @@ class _MainScreenState extends State<MainScreen>
   var _motionActivity = 'UNKNOWN';
   var _odometer = '0';
   var _content = '';
-
   JsonEncoder encoder = const JsonEncoder.withIndent('     ');
 
   @override
@@ -142,7 +138,6 @@ class _MainScreenState extends State<MainScreen>
     activateAudioSession();
     startAudioService();
     platform.invokeMethod('startAudioService');
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -155,7 +150,6 @@ class _MainScreenState extends State<MainScreen>
     bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
     bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
     bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
-
     bg.BackgroundGeolocation.ready(bg.Config(
             desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
             distanceFilter: 10.0,
@@ -171,11 +165,11 @@ class _MainScreenState extends State<MainScreen>
       });
     });
 
-    bg.BackgroundGeolocation.start().then((bg.State state) {
-      l('[start] success $state');
+    bg.BackgroundGeolocation.start().then((bg.State s) {
+      l('[start] success $s');
       setState(() {
-        _enabled = state.enabled;
-        _isMoving = state.isMoving == true;
+        _enabled = s.enabled;
+        _isMoving = s.isMoving == true;
       });
     });
   }
@@ -211,7 +205,6 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _buildRideModeOverlay() {
     WakelockPlus.enable();
-
     var nearbyPlaces = _locations.where((p) {
       final distance = _calculateDistance(_currentPosition, p.location);
       return distance <= 500;
@@ -237,7 +230,6 @@ class _MainScreenState extends State<MainScreen>
       final distanceB = _calculateDistance(_currentPosition, b.location);
       return distanceA < distanceB ? a : b;
     });
-
     final distanceToClosestPlace =
         _calculateDistance(_currentPosition, closestPlace.location);
     final bearingToPlace =
