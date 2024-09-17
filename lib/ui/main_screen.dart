@@ -37,6 +37,7 @@ class _MainScreenState extends State<MainScreen>
   BitmapDescriptor? _placeMarkerIcon;
   late AnimationController _animationController;
   final location = Location();
+  final encoder = const JsonEncoder.withIndent('     ');
   final audioHandler = MyAudioHandler();
   final List<Place> _locations = [
     Place(
@@ -128,7 +129,6 @@ class _MainScreenState extends State<MainScreen>
   var _motionActivity = 'UNKNOWN';
   var _odometer = '0';
   var _content = '';
-  JsonEncoder encoder = const JsonEncoder.withIndent('     ');
 
   @override
   void initState() {
@@ -150,15 +150,16 @@ class _MainScreenState extends State<MainScreen>
     bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
     bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
     bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
-    bg.BackgroundGeolocation.ready(bg.Config(
-            desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-            distanceFilter: 10.0,
-            stopOnTerminate: false,
-            startOnBoot: true,
-            debug: true,
-            logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-            reset: true))
-        .then((bg.State s) {
+    bg.BackgroundGeolocation.ready(
+      bg.Config(
+          desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+          distanceFilter: 10.0,
+          stopOnTerminate: false,
+          startOnBoot: true,
+          debug: true,
+          logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+          reset: true),
+    ).then((bg.State s) {
       setState(() {
         _enabled = s.enabled;
         _isMoving = s.isMoving == true;
@@ -196,16 +197,16 @@ class _MainScreenState extends State<MainScreen>
                   markers: _buildMarkers(),
                 ),
                 _buildBikeButton(),
-                _isRideMode ? _buildRideModeOverlay() : const SizedBox.shrink(),
+                _isRideMode ? _rideMode() : const SizedBox.shrink(),
               ],
             )
-          : _buildPermissionDeniedWidget(),
+          : _permissionDeniedWidget(),
     );
   }
 
-  Widget _buildRideModeOverlay() {
+  Widget _rideMode() {
     WakelockPlus.enable();
-    var nearbyPlaces = _locations.where((p) {
+    final nearbyPlaces = _locations.where((p) {
       final distance = _calculateDistance(_currentPosition, p.location);
       return distance <= 500;
     }).toList();
@@ -225,7 +226,7 @@ class _MainScreenState extends State<MainScreen>
       );
     }
 
-    var closestPlace = nearbyPlaces.reduce((a, b) {
+    final closestPlace = nearbyPlaces.reduce((a, b) {
       final distanceA = _calculateDistance(_currentPosition, a.location);
       final distanceB = _calculateDistance(_currentPosition, b.location);
       return distanceA < distanceB ? a : b;
@@ -262,14 +263,12 @@ class _MainScreenState extends State<MainScreen>
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 }
-
-                double? deviceHeading = snapshot.data?.heading;
-
+                final deviceHeading = snapshot.data?.heading;
                 if (deviceHeading == null) {
                   return const Texts("Device does not have sensors!");
                 }
 
-                double rotationAngle =
+                final rotationAngle =
                     (bearingToPlace - deviceHeading) * (pi / 180);
 
                 return Transform.rotate(
@@ -329,7 +328,7 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  Widget _buildPermissionDeniedWidget() {
+  Widget _permissionDeniedWidget() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -471,7 +470,9 @@ class _MainScreenState extends State<MainScreen>
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
     if (byteData != null) {
-      return BitmapDescriptor.fromBytes(byteData.buffer.asUint8List());
+      return BitmapDescriptor.fromBytes(
+        byteData.buffer.asUint8List(),
+      );
     } else {
       throw Exception('Failed to convert image to byte data');
     }
@@ -516,7 +517,7 @@ class _MainScreenState extends State<MainScreen>
 
     NotificaitonsUtil().showNotification(
         title: place.name,
-        body: "Congratulations! You have reached: " + place.name);
+        body: "Congratulations! You have reached: ${place.name}");
     await audioHandler.playUrl(place.audioUrl);
 
     try {
@@ -573,7 +574,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Future<void> startAudioService() async {
-    AudioHandler audioHandler = await AudioService.init(
+    final audioHandler = await AudioService.init(
       builder: () => MyAudioHandler(),
       config: const AudioServiceConfig(
         androidNotificationChannelId: 'com.example.app.channel.audio',
@@ -581,20 +582,19 @@ class _MainScreenState extends State<MainScreen>
         androidNotificationOngoing: true,
       ),
     );
-
     audioHandler.play();
   }
 
   void _startLocationUpdates() {
     Timer.periodic(
       const Duration(seconds: 1),
-      (Timer timer) {
+      (Timer t) {
         location.getLocation().then(
-          (LocationData currentLocation) {
+          (LocationData c) {
             setState(() {
               _currentPosition = LatLng(
-                currentLocation.latitude ?? 0,
-                currentLocation.longitude ?? 0,
+                c.latitude ?? 0,
+                c.longitude ?? 0,
               );
             });
             _moveCameraToPosition(_currentPosition);
@@ -660,7 +660,9 @@ class _MainScreenState extends State<MainScreen>
 
     l('[location] - $location');
     setState(() {
-      _content = encoder.convert(location.toMap());
+      _content = encoder.convert(
+        location.toMap(),
+      );
       _odometer = odometerKM;
     });
   }
@@ -686,7 +688,9 @@ class _MainScreenState extends State<MainScreen>
     l('$e');
 
     setState(() {
-      _content = encoder.convert(e.toMap());
+      _content = encoder.convert(
+        e.toMap(),
+      );
     });
   }
 
