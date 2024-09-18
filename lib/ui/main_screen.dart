@@ -149,24 +149,24 @@ class _MainScreenState extends State<MainScreen>
     bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
     bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
     bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
-    bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
     bg.BackgroundGeolocation.ready(
       bg.Config(
-          desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-          distanceFilter: 10.0,
-          stopOnTerminate: false,
-          startOnBoot: true,
-          debug: true,
-          logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-          reset: true),
-    ).then((bg.State s) {
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+        distanceFilter: 10.0,
+        stopOnTerminate: false,
+        startOnBoot: true,
+        debug: true,
+        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+        reset: true,
+      ),
+    ).then((s) {
       setState(() {
         _enabled = s.enabled;
         _isMoving = s.isMoving == true;
       });
     });
 
-    bg.BackgroundGeolocation.start().then((bg.State s) {
+    bg.BackgroundGeolocation.start().then((s) {
       l('[start] success $s');
       setState(() {
         _enabled = s.enabled;
@@ -255,15 +255,15 @@ class _MainScreenState extends State<MainScreen>
             ),
             StreamBuilder<CompassEvent>(
               stream: FlutterCompass.events,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Texts('Error reading heading: ${snapshot.error}');
+              builder: (c, s) {
+                if (s.hasError) {
+                  return Texts('Error reading heading: ${s.error}');
                 }
 
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (s.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 }
-                final deviceHeading = snapshot.data?.heading;
+                final deviceHeading = s.data?.heading;
                 if (deviceHeading == null) {
                   return const Texts("Device does not have sensors!");
                 }
@@ -369,11 +369,6 @@ class _MainScreenState extends State<MainScreen>
         child: const Icon(Icons.directions_bike),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Set<Marker> _buildMarkers() {
@@ -516,8 +511,10 @@ class _MainScreenState extends State<MainScreen>
     });
 
     NotificaitonsUtil().showNotification(
-        title: place.name,
-        body: "Congratulations! You have reached: ${place.name}");
+      title: place.name,
+      body: "Congratulations! You have reached: ${place.name}",
+    );
+
     await audioHandler.playUrl(place.audioUrl);
 
     try {
@@ -588,7 +585,7 @@ class _MainScreenState extends State<MainScreen>
   void _startLocationUpdates() {
     Timer.periodic(
       const Duration(seconds: 1),
-      (Timer t) {
+      (t) {
         location.getLocation().then(
           (LocationData c) {
             setState(() {
@@ -641,7 +638,7 @@ class _MainScreenState extends State<MainScreen>
   void _onLocation(bg.Location location) {
     final currentLatLng =
         LatLng(location.coords.latitude, location.coords.longitude);
-    final String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
+    final odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
 
     for (final place in _locations) {
       final distance = _calculateDistance(currentLatLng, place.location);
@@ -692,9 +689,5 @@ class _MainScreenState extends State<MainScreen>
         e.toMap(),
       );
     });
-  }
-
-  void _onConnectivityChange(bg.ConnectivityChangeEvent e) {
-    l('$e');
   }
 }
